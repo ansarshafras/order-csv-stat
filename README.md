@@ -2,15 +2,15 @@
 
 ![Plugin Settings Form](https://user-images.githubusercontent.com/74515796/99234769-f7684a80-281a-11eb-9cbd-3dd1087bd906.png)
 
-This is a simple WordPress plugin that creates a Order Stat CSV. The Woorder CSV allows WordPress admin users to add their settings for a plugin. 
+This is a simple WordPress plugin that creates a Woorder CSV. The Woorder CSV allows WordPress admin users to add their settings for a plugin. 
 
 This plugin does the following:
-- Adds an admin menu item to the left sidebar in the WordPress admin dashboard along with a submenu item including your Order Stat CSV
+- Adds an admin menu item to the left sidebar in the WordPress admin dashboard along with a submenu item including your Woorder CSV
 - Creates a Export CSV button on WooCommerce Order page
 - Exports the Woo Commerce orders into CSV format for download
 - Makes sure the settings form fields are pre-populated if it has already been filled out
 
-Check out our [blog post](https://blog.wplauncher.com/create-wordpress-plugin-settings-page/) to get step by step instructions on [how to add a Order Stat CSV to your WordPress plugin](https://blog.wplauncher.com/create-wordpress-plugin-settings-page/). The Order Stat CSV plugin is using the [WordPress Plugin Boilerplate framework](https://github.com/DevinVinson/WordPress-Plugin-Boilerplate) and we used [WWPB.me](https://wppb.me/) to generate a version with the settings-page namespaces.
+Check out our [blog post](https://blog.wplauncher.com/create-wordpress-plugin-settings-page/) to get step by step instructions on [how to add a Order Stat CSV to your WordPress plugin](https://blog.wplauncher.com/create-wordpress-plugin-settings-page/). The Woorder CSV plugin is using the [WordPress Plugin Boilerplate framework](https://github.com/DevinVinson/WordPress-Plugin-Boilerplate) and we used [WWPB.me](https://wppb.me/) to generate a version with the settings-page namespaces.
 
 ## Install the Order The Woorder CSV plugin on Your WordPress Site to See What you Get
 1. Click on the green clone or download button on this page and click Download Zip
