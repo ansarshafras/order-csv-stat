@@ -10,7 +10,7 @@ This plugin does the following:
 - Exports the Woo Commerce orders into CSV format for download
 - Makes sure the settings form fields are pre-populated if it has already been filled out
 
-Check out our [blog post](https://blog.wplauncher.com/create-wordpress-plugin-settings-page/) to get step by step instructions on [how to add a Order Stat CSV to your WordPress plugin](https://blog.wplauncher.com/create-wordpress-plugin-settings-page/). The Woorder CSV plugin is using the [WordPress Plugin Boilerplate framework](https://github.com/DevinVinson/WordPress-Plugin-Boilerplate) and we used [WWPB.me](https://wppb.me/) to generate a version with the settings-page namespaces.
+Check out our [blog post](https://blog.wplauncher.com/create-wordpress-plugin-settings-page/) to get step by step instructions on [how to add a Woorder CSV to your WordPress plugin](https://blog.wplauncher.com/create-wordpress-plugin-settings-page/). The Woorder CSV plugin is using the [WordPress Plugin Boilerplate framework](https://github.com/DevinVinson/WordPress-Plugin-Boilerplate) and we used [WWPB.me](https://wppb.me/) to generate a version with the settings-page namespaces.
 
 ## Install the Order The Woorder CSV plugin on Your WordPress Site to See What you Get
 1. Click on the green clone or download button on this page and click Download Zip
