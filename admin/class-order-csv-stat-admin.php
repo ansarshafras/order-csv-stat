@@ -6,8 +6,8 @@
  * @link       https://www.wplauncher.com
  * @since      1.0.0
  *
- * @package    Settings_Page
- * @subpackage Settings_Page/admin
+ * @package    Order_CSV_Stat
+ * @subpackage Order_CSV_Stat/admin
  */
 
 /**
@@ -16,9 +16,9 @@
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
  *
- * @package    Settings_Page
- * @subpackage Settings_Page/admin
- * @author     Ben Shadle <benshadle@gmail.com>
+ * @package    Order_CSV_Stat
+ * @subpackage Order_CSV_Stat/admin
+ * @author     Ben Shadle <benshadle@gmail.com>, Mohammed Shafras <shafras.mohammed008@gmail.com>
  */
 class Order_CSV_Stat_Admin {
 
@@ -124,25 +124,25 @@ class Order_CSV_Stat_Admin {
 		// that follow is what you will use as the value of data.action in the ajax
 		// call in your JS
 		$this->load_dependencies();
-		
-		// add_action('init', 'initWCCSVOrders');
-		// add_action( 'woocommerce_after_register_post_type', array( $this, 'init' ) );
-		
-		// add_action( 'admin_post_print.csv', 'print_csv' );
-		add_action( 'admin_enqueue_scripts', 'my_enqueue' );
+
+		add_action( 'admin_enqueue_scripts', 'order_csv_admin_ajax_enqueue' );
 		// if the ajax call will be made from JS executed when user is logged into WP,
 		// then use this version
 		add_action('wp_ajax_call_export_csv', array( $this, 'export_csv'));
 		// if the ajax call will be made from JS executed when no user is logged into WP,
 		// then use this version
 		add_action('wp_ajax_nopriv_call_export_csv', array( $this, 'export_csv'));
-
+		//Load the woocommerce order list through REST
 		add_action( 'woocommerce_after_register_post_type', 'set_data' );
-
-		add_action( 'wp_ajax_my_action', 'my_action' );
 
 	}
 
+	/**
+	 * Load the dependencies required for admin view
+	 *
+	 * @since    1.0.0
+	 * 
+	 */
 	private function load_dependencies(){
 
 		/**
@@ -151,75 +151,18 @@ class Order_CSV_Stat_Admin {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/order-csv-stat-generator.php'; 
 	}
 
-	function print_csv()
-	{
-    	if ( ! current_user_can( 'manage_options' ) )
-        	return;
+	/**
+	 * Load the admin scripts required for admin view
+	 *
+	 * @since    1.0.0
+	 * 
+	 */
 
-		$csv_output = '';
-
-		$orders = filter_orders($this->get_data());
-
-		// for ($i=0; $i < sizeof($orders) -1; $i++) {
-		// 	$order = $order[$i];
-		// 	for ($j=0; $j < sizeof($order) -1; $i++){
-		// 		$csv_output .= $order[$j].",";
-		// 	}
-		// 	$csv_output .= "\n";
-		// }
-
-		header('Content-type: application/force-download;');
-		header('Content-Disposition: attachment;filename="report.csv"');
-		header('Cache-Control: max-age=0');
-		// header('Cache-Control: max-age=1');
-		// If you're serving to IE over SSL, then the following may be needed
-		// header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-		header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
-		header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-		header('Pragma: public'); // HTTP/1.0
-
-		$outstream = fopen("php://output", "w");
-
-		for ($i=0; $i < sizeof($orders) -1; $i++) {
-			$order = $order[$i];
-			for ($j=0; $j < sizeof($order) -1; $i++){
-				$csv_output .= $order[$j].",";
-			}
-			$csv_output .= "\n";
-			fputcsv($outstream, $csv_output);
-		}
-		fclose($outstream);
-		exit();
-		wp_die();
-
-// foreach($result as $result)
-// {
-//     fputcsv($outstream, $result);
-// }
-
-// fclose($outstream);
-// exit();
-		
-
-
-		// for ($j=0;$j<$i;$j++) {
-        //     $csv_output .= $rowr[$j].",";
-        // }
-        // $csv_output .= "\n";
-		
-		// 	$csv_output .= $rowr[$j].",";
-		// 	$csv_output .= "\n";
-
-    	// output the CSV data
-	}
-
-	public function my_enqueue($hook) {
+	public function order_csv_admin_ajax_enqueue($hook) {
     	if( 'index.php' != $hook ) {
 			// Only applies to dashboard panel
 			return;
     	}
-        
-		wp_enqueue_script( 'ajax-script', plugins_url( '/admin/js/my_query.js', __FILE__ ), array('jquery') );
 
 		// in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
 		wp_localize_script( 'ajax-script', 'ajax_object',
@@ -227,13 +170,12 @@ class Order_CSV_Stat_Admin {
 			
 	}
 
-	public function my_action() {
-		global $wpdb;
-		$whatever = intval( $_POST['whatever'] );
-		$whatever = 10;
-        echo $whatever;
-		wp_die();
-	}
+	/**
+	 * Load the export CSV button required for admin view
+	 *
+	 * @since    1.0.0
+	 * 
+	 */
 
 	function admin_order_list_export_csv_button( $which ) {
     	global $typenow;
@@ -252,273 +194,113 @@ class Order_CSV_Stat_Admin {
     	}
 	}
 
+	/**
+	 * Get method for retrieving the data
+	 *
+	 * @since    1.0.0
+	 * 
+	 */
+	private function get_data(){
 
-function outputCsv() {
-	// $csvf = "Order stat CSV as at ".time().".csv";
-	
-	//Download Link - it can be prettier
-	$dlink = 'http://'.$_SERVER["SERVER_NAME"].'/request/download&file='.$csvf;
-	//JSON response to be handled on the client side
-	// $result = '{"success":1,"path":"'.$dlink.'","error":null}';
-	// header('Content-type: application/force-download;');
-	// header('Content-Disposition:attachment; filename='.$csvf);
+		return $this->$data;
 
-	// if ( ! current_user_can( 'edit_others_shop_orders' ) )
-    //     return;
+	}
 
-    // header('Content-Type: application/csv');
-    // header('Content-Disposition: attachment; filename='.$csvf.'');
-    // header('Pragma: no-cache');
 
-	// $isempty = empty( $assocDataArray );
-	// if ( $isempty ){
+	/**
+	 * Set method for setting the required WooCommerce order data
+	 *
+	 * @since    1.0.0
+	 * 
+	 */
+	private function set_data(){
 
-	// 	echo 'Your orders are empty !';
+		$args = array(
+			'numberposts' => -1,
+		);
 
-	// }else{
-
-	// 	$fp = fopen( $csvf, 'w+' );
-	// 	fputcsv( $fp, array_keys( reset($assocDataArray) ) );
-
-	// 	foreach ( $assocDataArray AS $values ):
-	// 		fputcsv( $fp, $values );
-	// 	endforeach;
-
-	// 	rewind($fp);
-	// 	// $csv_line = stream_get_contents($fp);
-	// 	// return rtrim($csv_line);
-	// }
-
-	// fclose( $fp );
-
-	// wp_die();
-
-	// return $result;
-
-	if ( ! current_user_can( 'manage_options' ) )
-        	return;
-
-		$csv_output = '';
-
-		$orders = filter_orders($this->get_data());
-
-		// for ($i=0; $i < sizeof($orders) -1; $i++) {
-		// 	$order = $order[$i];
-		// 	for ($j=0; $j < sizeof($order) -1; $i++){
-		// 		$csv_output .= $order[$j].",";
-		// 	}
-		// 	$csv_output .= "\n";
-		// }
-
-		$csvf = "Order stat CSV as at ".time().".csv";
-		//Download Link - it can be prettier
-		$dlink = get_site_url();
-		$dlink .= '/request/download&file='.$csvf;
-		//JSON response to be handled on the client side
-		$result = '{"success":1,"path":"'.$dlink.'","error":null}';
-
-		header('Content-type: application/force-download;');
-		header('Content-Disposition: attachment;filename="report.csv"');
-		header('Cache-Control: max-age=0');
-		// header('Cache-Control: max-age=1');
-		// If you're serving to IE over SSL, then the following may be needed
-		// header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
-		header('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
-		header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-		header('Pragma: public'); // HTTP/1.0
-
-		$outstream = fopen("php://outpfilter_date_emptyut", "w");
-
-		for ($i=0; $i < sizeof($orders) -1; $i++) {
-			$order = $order[$i];
-			for ($j=0; $j < sizeof($order) -1; $i++){
-				$csv_output .= $order[$j].",";
-			}
-			$csv_output .= "\n";
-			fputcsv($outstream, $csv_output);
+		if($this->$status !== "All"){
+			$args[] = array(
+				'status' => $this->$status,
+			);
 		}
-		fclose($outstream);
-		// echo wp_send_json($result);
-		// // exit();
-		// wp_die();
-
-		return array( 'success' => true, 'data' => $response ); 
-}
-
-
-private function initWCCSVOrders(){
-	$orders = wc_get_orders( array( 'numberposts' => -1 ) );
-			var_dump( $orders );
-}
-
-
-private function get_data(){
-
-	return $this->$data;
-
-}
-
-
-
-private function set_data(){
-
-	$args = array(
-		'numberposts' => -1,
-	);
-
-	if($this->$status !== "All"){
-		array_push($args,array(
-			'status' => $this->$status,
-		));
-	}
-	if($this->$filter_date_empty !== "0"){
-
-		array_push($args,array(
-			'date_created'=> $this->$filterstartdate .'...'. $this->$filterenddate, 
-		));
 		
-	}
-	if(!$this->$customer_empty){
+		if($this->$filter_date_empty !== "0"){
 
-		array_push($args,array(
-			'customer_id' => $this->$customeremail,
-		));
-	
-	}
-
-	$all_orders = wc_get_orders( $args );
-	
-	
-
-	$csv_orders = array();
-
-	array_push($csv_orders, array('Order number','Order placed date','Name of customer','Order status','Order total'));
-
-	// if($this->$status === "All" and $this->$filterdate === "0" and $this->$customer_empty){
-	foreach( $all_orders as $order ){
+			$args[] = array(
+				'date_created'=> $this->$filterstartdate .'...'. $this->$filterenddate, 
+			);	
+		}
 		
-		$order_id = $order->get_order_key();
-		$order_placed_date = is_null( $order->get_date_paid())? date_format($order->get_date_created(),"yy-m-d H:i:s") : date_format($order->get_date_paid(),"yy-m-d H:i:s");
-		$ordered_customer_billing_fullname = $order->get_formatted_billing_full_name();
-		$order_status = $order->get_status();
-		$order_total = $order->get_total() . ' ' .$order->get_currency();
-		array_push($csv_orders, array($order_id,$order_placed_date,$ordered_customer_billing_fullname,$order_status,$order_total));
-	}
-	$this->$data = $csv_orders;
-}
+		if(!$this->$customer_empty){
 
-function runOnInit() {
+			$args[] = array(
+				'customer_id' => $this->$customeremail,
+			);
+	
+		}
+
+		$all_orders = wc_get_orders( $args );
+
+		$csv_orders = array();
+
+		$csv_orders[] = array("Order number","Order placed date","Name of customer","Order status","Order total \r\n");
+
+		foreach( $all_orders as $order ){
 		
-}
-
-// function export_csv(){
-// 	if (isset($_POST["order_csv_export"]))
-// {
-
-//        $filename = 'Student_Table_' . time() . '.csv';
-//         $header_row = array(
-//             'Order number',
-// 			'Order placed date',
-// 			'Name of customer',
-// 			'Order',
-// 			'Order total',
-//         );
-//        $data_rows = array();
-
-
-//         $users = $wpdb->get_results("SELECT * FROM ".$table_prefix."student ","ARRAY_A");
-//         foreach ( $users as $user ) 
-//         {
-//             $row = array(
-//             $user['id'],
-//             $user['f_name'],
-//             $user['l_name'],
-//             $user['email'],
-//             $user['p_name'],
-//             $user['address']
-//             );
-//             $data_rows[] = $row;
-//         }
-//         ob_end_clean ();
-//         $fh = @fopen( 'php://output', 'w' );
-//         header( "Content-Disposition: attachment; filename={$filename}" );
-//         fputcsv( $fh, $header_row );
-//         foreach ( $data_rows as $data_row ) 
-//         {
-//             fputcsv( $fh, $data_row );
-//         }
-    
-        
-//         exit();
-//     }
-// }
-
-function export_csv() {
-	$orders = array();
-	
-	$this->$customer_empty = ($_GET['customer_empty'] === 'true');
-
-	$this->$filter_date_empty = ($_GET['filter_date_empty'] === 'true');
-
-	$this->$filterdate = date_format($_GET['filterdate'],"yy-m-d H:i:s");
-
-	$this->$status = $_GET['status'];
-	
-	if(!$this->$filter_date_empty){
-
-		$this->$filterstartdate = $_GET['filterstartdate'];
-		$this->$filterenddate = $_GET['filterenddate'];
+			$order_number = $order->get_id();
+			$order_placed_date = is_null( $order->get_date_paid())? date_format($order->get_date_created(),"yy-m-d H:i:s") : date_format($order->get_date_paid(),"yy-m-d H:i:s");
+			$ordered_customer_billing_fullname = $order->get_formatted_billing_full_name();
+			$order_status = $order->get_status();
+			$order_total = $order->get_total() . ' ' .$order->get_currency();
+			$csv_orders[] = array($order_number,$order_placed_date,$ordered_customer_billing_fullname,$order_status,$order_total."\r\n");
+		}
+		$this->$data = $csv_orders;
 	}
 
-	if(!$this->$customer_empty){
-		
-		$this->$customeremail = $_GET['customeremail'];
+	/**
+	 * Export method for sending JSON ressponse of the required ordedr data for CSV generation
+	 *
+	 * @since    1.0.0
+	 * 
+	 */
 	
-	}
-	// if(!current_user_can( 'edit_others_shop_orders' ))
-	// {
-	// 	echo "Sorry you don't have the permissions !";
-			
-	// }
-	// else
-	// {
-	// 	if ( $_GET['action'] !== 'call_export_csv' and current_user_can( 'edit_others_shop_orders' )) {
+	function export_csv() {
+
+		/**
+		 * This function is provided for JSON response for export CSV only.
+		 *
+		 * 
+		 */
 		
-	// 		// $generate = new Order_CSV_Stat_Generator();
-	// 		// array_push($orders, $generate->get_data());
-	// 		// echo(var_dump($orders));
-	// 		$result = '{"success":-1,"error":"You do not have permissions fot this !"}';
-	// 		return wp_send_json_error($result);
+		$orders = array();
 	
-	// 	}
-	$this->set_data();
-	// $response = array( 'success' => true, 'data' => $this->outputCsv() );
+		$this->$customer_empty = ($_GET['customer_empty'] === 'true');
+
+		$this->$filter_date_empty = ($_GET['filter_date_empty'] === 'true');
+
+		$this->$filterdate = date_format($_GET['filterdate'],"yy-m-d H:i:s");
+
+		$this->$status = $_GET['status'];
+	
+		if(!$this->$filter_date_empty){
+
+			$this->$filterstartdate = $_GET['filterstartdate'];
+			$this->$filterenddate = $_GET['filterenddate'];
+		}
+
+		if(!$this->$customer_empty){
+		
+			$this->$customeremail = $_GET['customeremail'];
+	
+		}
+
+		$this->set_data();
+		
 		$response = array( 'success' => true, 'data' => $this->get_data() ); 
+		
 		return wp_send_json_success($response);
-	// }
-}
-
-
-
-function filter_orders()
-{
-	$orders = $this->set_data();
-
-	$filtered_orders = array();
-
-	foreach ( $orders as $order ) {
-		if($order instanceof WC_Order){
-			$order_no = $order['ids'];
-			$order_placed_date = $order['date_created'];
-			$customer_name = $order['billing_first_name'] . ' ' . $order['billing_last_name'];
-			$order_status = $order['status'];
-			$order_total = $order['total'] + $order['currency'];
-			array_push($filtered_orders, $order);
-		}
 	}
-
-	return $filtered_orders;
-}
 
 	/**
 	 * Register the stylesheets for the admin area.
@@ -586,6 +368,7 @@ function filter_orders()
 		}
 		require_once 'partials/'.$this->plugin_name.'-display.php';
 	}
+	
 	public function settingsPageSettingsMessages($error_message){
 		switch ($error_message) {
 				case '1':
