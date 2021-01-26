@@ -1,4 +1,4 @@
-# Woorder CSV WordPress Plugin
+# Woorder CSV WordPress Plugin for WooCommerce
 
 ![Plugin Settings Form](https://user-images.githubusercontent.com/74515796/99234769-f7684a80-281a-11eb-9cbd-3dd1087bd906.png)
 
