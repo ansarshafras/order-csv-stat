@@ -4,6 +4,8 @@
 
 This is a simple WordPress plugin that creates a Woorder CSV. The Woorder CSV allows WordPress admin users to add their settings for a plugin. 
 
+You may reach me out via shafras.mohammed008@gmail.com if I can support on my end
+
 This plugin does the following:
 - Adds an admin menu item to the left sidebar in the WordPress admin dashboard along with a submenu item including your Woorder CSV
 - Creates a Export CSV button on WooCommerce Order page
